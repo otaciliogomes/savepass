@@ -50,14 +50,27 @@ export function RegisterLoginData() {
   });
 
   async function handleRegister(formData: FormData) {
-    const newLoginData = {
-      id: String(uuid.v4()),
-      ...formData
+    try {
+      const dataKey = '@savepass:logins';
+      const newLoginData = {
+        id: String(uuid.v4()),
+        ...formData
+      }
+      const dataList = await AsyncStorage.getItem(dataKey)
+      const currentDataList = dataList ? JSON.parse(dataList) : []
+
+      const newDataList = [
+        ...currentDataList,
+        newLoginData
+      ]
+      
+      // Save data on AsyncStorage and navigate to 'Home' screen
+      await AsyncStorage.setItem(dataKey, JSON.stringify(newDataList))
+      navigate('Home')
+    } catch (error) {
+      console.error(error);
     }
 
-    const dataKey = '@savepass:logins';
-
-    // Save data on AsyncStorage and navigate to 'Home' screen
   }
 
   return (
@@ -75,7 +88,7 @@ export function RegisterLoginData() {
             name="service_name"
             error={
               // Replace here with real content
-              'Has error ? show error message'
+              errors.service_name! && 'Nome do serviço é obrigatório!'
             }
             control={control}
             autoCapitalize="sentences"
@@ -87,7 +100,7 @@ export function RegisterLoginData() {
             name="email"
             error={
               // Replace here with real content
-              'Has error ? show error message'
+              errors.email! && 'Email é obrigatório!'
             }
             control={control}
             autoCorrect={false}
@@ -100,7 +113,7 @@ export function RegisterLoginData() {
             name="password"
             error={
               // Replace here with real content
-              'Has error ? show error message'
+              errors.password! && 'Senha é obrigatória!'
             }
             control={control}
             secureTextEntry
